@@ -9,3 +9,5 @@ build/
 data/*.sqlite3
 *.log
 .claude/
+
+backend/upx_tool/

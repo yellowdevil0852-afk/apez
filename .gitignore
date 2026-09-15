@@ -7,3 +7,5 @@ build/
 .env
 *.db
 data/*.sqlite3
+*.log
+.claude/

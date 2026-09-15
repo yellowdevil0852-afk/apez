@@ -1,0 +1,909 @@
+:root {
+  --bg: #101014;
+  --panel-bg: #1b1b22;
+  --panel-bg-alt: #22222b;
+  --accent: #e0393f;
+  --accent-hover: #ff4f56;
+  --text: #eaeaf0;
+  --muted: #9a9aa5;
+  --border: #2c2c36;
+  --legend-card-size: 60px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Microsoft JhengHei", system-ui, sans-serif;
+  line-height: 1.4;
+}
+
+.muted { color: var(--muted); }
+.small { font-size: 0.85em; }
+.hidden { display: none !important; }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel-bg);
+}
+.app-header h1 { margin: 0; font-size: 1.3rem; }
+
+main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.row-1 > .panel { flex: 1 1 420px; }
+.row-2 > .panel, .row-3 > .panel { flex: 1 1 100%; }
+
+/* Legend grid section intentionally has no .panel chrome (no border/background)
+   — it sits directly on the page background, unlike every other section. */
+#panel-legend-grid {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/* scoped with the #panel-legend-grid ID so these reliably beat the later
+   .panel-header / .panel-header h2 rules regardless of source order */
+#panel-legend-grid .legend-header {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* extra clearance below the header so selected cards (which lift upward,
+     see .legend-card.selected) don't collide with the title/subtitle */
+  margin-bottom: 64px;
+}
+#panel-legend-grid .legend-header h2 { text-align: center; font-size: 1.575rem; }
+#panel-legend-grid .legend-subtitle-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 6px;
+}
+#panel-legend-grid .legend-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.legend-clear-all {
+  font-size: 0.85rem;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .15s ease;
+}
+.legend-clear-all:hover { color: var(--accent); }
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.panel-header h2 { margin: 0; font-size: 1.05rem; }
+.panel-header-actions { display: flex; gap: 8px; }
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--panel-bg-alt);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: transparent; }
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.05rem;
+  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  transition: color .15s ease;
+}
+.btn-icon:hover { color: var(--accent); }
+
+/* Overview panel */
+.summary-toggle {
+  width: 100%;
+  text-align: left;
+  background: var(--panel-bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.summary-toggle {
+  transition: border-color .15s ease;
+}
+.summary-toggle:hover { border-color: var(--accent); }
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+.data-table {
+  width: 100%;
+  min-width: 560px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+.data-table th, .data-table td {
+  height: 40px;
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.data-table th:nth-child(1), .data-table td:nth-child(1) { width: 26%; }
+.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 14%; }
+.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 34%; }
+.data-table th:nth-child(4), .data-table td:nth-child(4) { width: 12%; }
+.data-table th:nth-child(5), .data-table td:nth-child(5) { width: 14%; white-space: nowrap; }
+.data-table th { color: var(--muted); font-weight: 500; }
+.data-table tbody tr {
+  transition: background-color .15s ease;
+  user-select: none;
+}
+.data-table tbody tr:hover {
+  background-color: var(--panel-bg-alt);
+}
+.data-table td.note-cell {
+  cursor: pointer;
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color .15s ease;
+}
+.data-table td.note-cell:hover { color: var(--accent-hover); }
+
+.data-table th.status-cell, .data-table td.status-cell { text-align: center; }
+
+/* reserve a full 5-row height even when fewer accounts exist */
+.data-table tr.table-row-empty td {
+  visibility: hidden;
+  border-bottom-color: transparent;
+}
+
+.rank-badge {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 4px;
+  display: inline-block;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 12px;
+  border-radius: 2px;
+}
+.status-dot.synced {
+  background: #39ff6a;
+  box-shadow: 0 0 6px rgba(57, 255, 106, 0.7);
+}
+.status-dot.unsynced {
+  background: #ff3b3b;
+  box-shadow: 0 0 6px rgba(255, 59, 59, 0.7);
+}
+
+/* Overview table reveal: reserved space, fade + slide */
+#overview-table-wrap {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+#overview-table-wrap.collapsed {
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+/* Sort panel */
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.sort-controls select {
+  background: var(--panel-bg-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-left: 6px;
+  transition: border-color .15s ease;
+}
+.sort-controls select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.sort-row {
+  display: grid;
+  /* minmax(0, 1fr), not plain 1fr — a bare 1fr track still has an implicit
+     auto (content-based) minimum, so a long account name on one page vs a
+     short one on another silently changes this row's (and therefore the
+     whole panel's, via width:100% cascading up through the flex layout)
+     rendered width between pages. minmax(0, ...) removes that floor so the
+     name column always takes exactly its share of the row and truncates
+     instead of growing. */
+  grid-template-columns: minmax(0, 1fr) 160px;
+  align-items: center;
+  height: 40px;
+  padding: 8px 26px 8px 10px;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.sort-row:last-child { border-bottom: none; }
+.sort-row .sort-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.digit-pad {
+  visibility: hidden;
+}
+.sort-row-empty { visibility: hidden; }
+
+/* Sort panel: rows evenly fill available panel height */
+#panel-sort {
+  display: flex;
+  flex-direction: column;
+}
+#panel-sort .carousel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+#panel-sort .carousel-set {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+/* #panel-sort's row-slots fill whatever height the panel actually ends up
+   (it stretches to match #panel-overview's height via the row-1 flex layout)
+   instead of a fixed 40px — this is intentionally scoped to #panel-sort only;
+   #panel-search's .sort-row stays at the shared fixed 40px height, which is
+   correct there and must not change. */
+#panel-sort .sort-row {
+  height: auto;
+  flex: 1 1 auto;
+  min-height: 40px;
+}
+/* Search panel: same panel layout as the sort panel, but its rows show an
+   extra " · KD X.XX" segment after the rank, so the value column needs more
+   room than the sort panel's shared 160px or that text wraps to a 2nd line. */
+#panel-search {
+  display: flex;
+  flex-direction: column;
+}
+#panel-search .sort-row {
+  grid-template-columns: minmax(0, 1fr) 230px;
+}
+#panel-search .sort-row .sort-value {
+  white-space: nowrap;
+}
+#panel-search .carousel {
+  display: flex;
+  flex-direction: column;
+}
+#panel-search .carousel-set {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Carousel (shared sliding animation) */
+.carousel {
+  position: relative;
+  overflow: hidden;
+  min-height: 40px;
+  width: 100%;
+}
+.carousel-set {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  width: 100%;
+}
+.carousel-set.incoming,
+.carousel-set.leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Without an explicit height, position:absolute makes this shrink-to-fit
+     its content instead of filling .carousel (whose height is pinned to a
+     definite px value by swapCarousel for the transition's duration) — so
+     panels like #panel-sort whose rows flex-stretch to fill available
+     height (flex: 1 1 auto; min-height: 40px) would otherwise collapse to
+     their bare 40px floor for the whole transition, since a shrink-to-fit
+     container has no extra space left to stretch into. */
+  height: 100%;
+}
+
+/* Card showcase */
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.account-card {
+  display: flex;
+  background: var(--panel-bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color .15s ease;
+  user-select: none;
+}
+.account-card:hover { border-color: var(--accent); }
+.account-card-info {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.account-card-info .name { font-weight: 600; font-size: 1.05rem; }
+.account-card-portrait {
+  flex: 0 0 110px;
+  position: relative;
+  overflow: hidden;
+  border-left: 1px solid var(--border);
+}
+.account-card-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.account-card-portrait .portrait-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 4px 6px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  font-size: 0.7rem;
+  color: #fff;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Legend filter grid (Row 3) */
+.legend-grid-scroll {
+  width: 100%;
+  overflow-x: auto;
+  /* overflow-x:auto alone implicitly computes overflow-y to auto too (CSS
+     overflow-interaction rule), which was clipping the top of lifted
+     .legend-card.selected cards — force it back to visible so only the
+     horizontal axis ever clips/scrolls. */
+  overflow-y: visible;
+  padding-top: 20px;
+}
+.legend-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  min-width: min-content;
+}
+.legend-grid-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--legend-card-size);
+  width: 100%;
+}
+.legend-class-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.legend-class-cards {
+  display: flex;
+  gap: 6px;
+}
+.legend-card {
+  width: var(--legend-card-size);
+  height: var(--legend-card-size);
+  flex: 0 0 auto;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--panel-bg-alt);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform .22s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.legend-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+.legend-card.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.legend-card:hover:not(.selected) {
+  animation: legend-card-breathe 2s ease-in-out infinite;
+}
+.legend-card.selected {
+  transform: translateY(calc(var(--legend-card-size) * -0.25));
+  border-color: #b8860b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+@keyframes legend-card-breathe {
+  0%, 100% { border-color: rgba(255, 209, 0, 0.35); box-shadow: 0 0 4px rgba(255, 209, 0, 0.25); }
+  50% { border-color: rgba(255, 209, 0, 0.95); box-shadow: 0 0 14px rgba(255, 209, 0, 0.75); }
+}
+
+.legend-class-banner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.legend-class-banner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  /* fixed shared width across all 5 banners, sized generously enough that the
+     longest labels (CONTROLLER / SKIRMISHER) fully fit without clipping —
+     visually confirm in-browser and adjust if any label still touches the
+     trapezoid's slanted edge. */
+  width: 220px;
+  padding: 6px 22px;
+  clip-path: polygon(12% 0, 88% 0, 76% 100%, 24% 100%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #fff;
+  white-space: nowrap;
+}
+.legend-class-banner svg { flex: 0 0 auto; }
+.banner-assault { background: linear-gradient(135deg, #6b1f1f, #a33a2c); }
+.banner-controller { background: linear-gradient(135deg, #1f3a5f, #2c5f8a); }
+.banner-skirmisher { background: linear-gradient(135deg, #4a1f6b, #7a3aa3); }
+.banner-recon { background: linear-gradient(135deg, #1f5f4a, #2c8a6f); }
+.banner-support { background: linear-gradient(135deg, #6b5a1f, #a38a2c); }
+
+/* Accent "shelf" bar above each banner (cards -> accent -> banner) — same
+   color family, wider than the trapezoid, thin. */
+.legend-class-accent {
+  width: 240px;
+  height: 4px;
+  border-radius: 2px;
+}
+.accent-assault { background: #a33a2c; }
+.accent-controller { background: #2c5f8a; }
+.accent-skirmisher { background: #7a3aa3; }
+.accent-recon { background: #2c8a6f; }
+.accent-support { background: #a38a2c; }
+
+/* Row 4: search (70%) + placeholder (30%) */
+.row-4 > .panel { display: flex; flex-direction: column; }
+.row-4 > #panel-search { flex: 7 1 0; min-width: 280px; }
+.row-4 > #panel-search-placeholder {
+  flex: 3 1 0;
+  min-width: 160px;
+  align-items: center;
+  justify-content: center;
+}
+
+#search-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--panel-bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font: inherit;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color .15s ease;
+}
+.chip:hover { background-color: var(--accent-hover); }
+.chip button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: opacity .15s ease;
+}
+.chip button:hover { opacity: 0.7; }
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity .2s ease-out;
+}
+.modal-overlay.open {
+  opacity: 1;
+}
+.modal {
+  position: relative;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  width: 360px;
+  max-width: 90vw;
+}
+.modal h3 { margin-top: 0; }
+.modal label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.modal input, .modal textarea, .modal select {
+  width: 100%;
+  margin-top: 4px;
+  background: var(--panel-bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: inherit;
+  transition: border-color .15s ease;
+}
+.modal select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(1em + 2px),
+    calc(100% - 13px) calc(1em + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.modal input:focus, .modal textarea:focus, .modal select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: color .15s ease;
+}
+.modal-close:hover { color: var(--accent); }
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+#add-note, #batch-add-input, #edit-note {
+  resize: none;
+}
+.batch-add-link {
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.75rem;
+  transition: color .15s ease;
+}
+.batch-add-link:hover { color: var(--accent); }
+
+@keyframes modal-slide-down-out {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(30px); opacity: 0; }
+}
+@keyframes modal-slide-in-right {
+  from { transform: translateX(60px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.modal-slide-down-out { animation: modal-slide-down-out 0.25s ease forwards; }
+.modal-slide-in-right { animation: modal-slide-in-right 0.25s ease forwards; }
+
+/* Account detail modal: animated fade + scale in/out */
+#modal-detail {
+  opacity: 0;
+  transition: opacity .2s ease-out;
+}
+#modal-detail.open {
+  opacity: 1;
+}
+#modal-detail.hidden {
+  display: none !important;
+}
+.modal-detail-card {
+  width: 760px;
+  max-width: 92vw;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.94);
+  opacity: 0;
+  transition: transform .2s ease-out, opacity .2s ease-out;
+}
+#modal-detail.open .modal-detail-card {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.detail-columns {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(82vh - 40px);
+}
+.detail-col-left {
+  flex: 1 1 300px;
+  min-width: 260px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.detail-col-right {
+  flex: 1 1 340px;
+  min-width: 280px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+}
+.legend-stat-card {
+  background: var(--panel-bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.legend-stat-card h4 {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.legend-stat-line {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .modal-detail-card {
+    width: 92vw;
+    max-height: 88vh;
+  }
+  .detail-columns {
+    flex-direction: column;
+    max-height: calc(88vh - 40px);
+    overflow-y: auto;
+  }
+  .detail-col-left, .detail-col-right {
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    border-left: none;
+    width: 100%;
+  }
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-right: 24px;
+}
+.detail-header .detail-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+.detail-header .platform-badge {
+  background: var(--panel-bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.detail-rank {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.detail-level {
+  margin-bottom: 10px;
+}
+.detail-legend-section {
+  /* clears the modal's absolutely-positioned × close button (top:8px,
+     right:10px) sitting over this column's top-right corner */
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+.detail-portrait {
+  width: 100%;
+  /* Source images are ~0.9:1 (portrait) — the old 90px height against a
+     ~300px-wide box cropped to a ~24% center sliver of the image, cutting
+     off the face entirely. Taller box + object-position:top keeps the head
+     in frame instead of centering on the torso. */
+  height: 220px;
+  border-left: none;
+  border-radius: 6px;
+}
+.detail-portrait img {
+  object-position: top;
+}
+.detail-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+.detail-section {
+  margin-bottom: 12px;
+}
+.detail-section h4 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+.detail-note {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Fixed bottom-right sync indicators */
+.sync-gear {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 10px;
+  background: var(--panel-bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.sync-gear svg {
+  flex: 0 0 auto;
+  animation: sync-gear-spin 1.6s linear infinite;
+}
+.sync-gear-label {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+@keyframes sync-gear-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Toast (bottom-right) */
+.sync-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 300;
+  background: #0a0a0c;
+  color: #fff;
+  padding: 14px 16px 10px;
+  border-radius: 8px;
+  border: 1px solid #ff8c1a;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+  overflow: hidden;
+  min-width: 200px;
+}
+.sync-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.sync-toast .toast-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: #ff8c1a;
+  animation: none;
+}
+.sync-toast .toast-message {
+  display: block;
+}
+@keyframes toast-bar-shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}

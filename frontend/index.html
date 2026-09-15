@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apez — 賬號管理</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="app-header">
+  <h1>Apez <span class="muted">賬號管理</span></h1>
+</header>
+
+<main>
+  <!-- ROW 1 -->
+  <section class="row row-1">
+
+    <!-- Panel 1: Account overview -->
+    <div class="panel" id="panel-overview">
+      <div class="panel-header">
+        <h2>帳號總覽</h2>
+        <div class="panel-header-actions">
+          <button id="btn-sync-all" class="btn btn-ghost">同步資料</button>
+          <button id="btn-add-account" class="btn btn-primary">+ 新增帳號</button>
+        </div>
+      </div>
+      <button id="overview-summary" class="summary-toggle">載入中...</button>
+      <div id="overview-table-wrap" class="collapsed">
+        <div class="table-scroll">
+          <div class="carousel" id="overview-carousel">
+            <div class="carousel-set current"><p class="muted">載入中...</p></div>
+          </div>
+        </div>
+        <div class="pager">
+          <button id="overview-prev" class="btn btn-ghost">上一頁</button>
+          <span id="overview-page-label" class="muted"></span>
+          <button id="overview-next" class="btn btn-ghost">下一頁</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Auto-sort panel -->
+    <div class="panel" id="panel-sort">
+      <div class="panel-header">
+        <h2>自動排序</h2>
+      </div>
+      <div class="sort-controls">
+        <label>排序依據
+          <select id="sort-by">
+            <option value="level">等級</option>
+            <option value="rank_score">段位</option>
+          </select>
+        </label>
+        <button id="sort-dir" class="btn btn-ghost" data-dir="desc">遞減 ▼</button>
+      </div>
+      <div class="carousel" id="sort-carousel">
+        <div class="carousel-set current"><p class="muted">載入中...</p></div>
+      </div>
+      <div class="pager">
+        <button id="sort-prev" class="btn btn-ghost">← 上一頁</button>
+        <span id="sort-page-label" class="muted"></span>
+        <button id="sort-next" class="btn btn-ghost">下一頁 →</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ROW 2 -->
+  <section class="row row-2">
+    <div class="panel" id="panel-showcase">
+      <div class="panel-header">
+        <h2>帳號展示</h2>
+        <span class="muted small">每 60 秒自動輪播</span>
+      </div>
+      <div class="carousel" id="showcase-carousel">
+        <div class="carousel-set current"><p class="muted">載入中...</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROW 3: legend filter grid -->
+  <section class="row row-3">
+    <div id="panel-legend-grid">
+      <div class="panel-header legend-header">
+        <h2>角色篩選</h2>
+        <div class="legend-subtitle-row">
+          <p class="legend-subtitle muted">點擊角色卡片選取</p>
+          <a href="#" id="legend-clear-all" class="legend-clear-all">取消全部</a>
+        </div>
+      </div>
+      <div class="legend-grid-scroll">
+        <div id="legend-grid" class="legend-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROW 4: search (70%) + placeholder (30%) -->
+  <section class="row row-4">
+    <div class="panel" id="panel-search">
+      <div class="panel-header">
+        <h2>查找賬號</h2>
+      </div>
+      <input type="text" id="search-input" placeholder="輸入名字搜尋...">
+      <div class="sort-controls">
+        <button id="search-dir" class="btn btn-ghost" data-dir="desc">段位遞減 ▼</button>
+      </div>
+      <div class="carousel" id="search-carousel">
+        <div class="carousel-set current"><p class="muted">載入中...</p></div>
+      </div>
+      <div class="pager">
+        <button id="search-prev" class="btn btn-ghost">← 上一頁</button>
+        <span id="search-page-label" class="muted"></span>
+        <button id="search-next" class="btn btn-ghost">下一頁 →</button>
+      </div>
+    </div>
+    <div class="panel" id="panel-search-placeholder">
+      <span class="muted">後續開發</span>
+    </div>
+  </section>
+</main>
+
+<!-- Modal: add account -->
+<div class="modal-overlay hidden" id="modal-add">
+  <div class="modal">
+    <button class="modal-close" data-close="modal-add">×</button>
+    <h3>新增帳號</h3>
+    <label>名字
+      <input type="text" id="add-player-name">
+    </label>
+    <label>平臺
+      <select id="add-platform">
+        <option value="PC" selected>PC</option>
+        <option value="PS4">PS4</option>
+        <option value="X1">X1</option>
+        <option value="SWITCH">SWITCH</option>
+      </select>
+    </label>
+    <label>資料
+      <textarea id="add-note" rows="3"></textarea>
+    </label>
+    <div class="modal-actions">
+      <a id="batch-add-link" class="batch-add-link">需要批量新增賬號？點擊這裡</a>
+      <button id="add-save" class="btn btn-primary">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: batch add accounts -->
+<div class="modal-overlay hidden" id="modal-batch-add">
+  <div class="modal">
+    <button class="modal-close" data-close="modal-batch-add">×</button>
+    <h3>批量新增賬號</h3>
+    <textarea id="batch-add-input" rows="6" placeholder="貼上多個賬號名字，換行，逗號或符號分割都可以"></textarea>
+    <p class="muted small">平臺默認為 PC</p>
+    <div class="modal-actions">
+      <button id="batch-add-back" class="btn">返回</button>
+      <button id="batch-add-save" class="btn btn-primary">批量新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: edit note (double click on 資料 cell) -->
+<div class="modal-overlay hidden" id="modal-note">
+  <div class="modal">
+    <button class="modal-close" data-close="modal-note">×</button>
+    <h3>編輯資料</h3>
+    <textarea id="note-textarea" rows="5"></textarea>
+    <button id="note-save" class="btn btn-primary">儲存</button>
+  </div>
+</div>
+
+<!-- Modal: edit account (pencil icon) -->
+<div class="modal-overlay hidden" id="modal-edit">
+  <div class="modal">
+    <button class="modal-close" data-close="modal-edit">×</button>
+    <h3>編輯帳號</h3>
+    <label>平臺
+      <select id="edit-platform">
+        <option value="PC">PC</option>
+        <option value="PS4">PS4</option>
+        <option value="X1">X1</option>
+        <option value="SWITCH">SWITCH</option>
+      </select>
+    </label>
+    <label>標籤 (tag)
+      <input type="text" id="edit-tag">
+    </label>
+    <label>資料
+      <textarea id="edit-note" rows="3"></textarea>
+    </label>
+    <label>擁有的傳奇 (以逗號分隔)
+      <input type="text" id="edit-legends" placeholder="Wraith, Pathfinder">
+    </label>
+    <div class="modal-actions">
+      <button id="edit-sync" class="btn btn-ghost">立即同步</button>
+      <button id="edit-save" class="btn btn-primary">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: account detail (double-click a row/card) -->
+<div class="modal-overlay hidden" id="modal-detail">
+  <div class="modal modal-detail-card">
+    <button class="modal-close" id="detail-close">×</button>
+    <div class="detail-columns">
+      <div class="detail-col-left" id="detail-content"></div>
+      <div class="detail-col-right" id="detail-legend-stats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Fixed bottom-right sync indicators -->
+<div id="sync-gear" class="sync-gear hidden" title="自動同步中">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+  <span class="sync-gear-label">自動同步中</span>
+</div>
+<div id="sync-toast" class="sync-toast hidden">
+  <div class="toast-bar"></div>
+  <span class="toast-message"></span>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
